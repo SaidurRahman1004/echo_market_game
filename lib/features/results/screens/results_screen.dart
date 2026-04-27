@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../hub/screens/hub_screen.dart';
 import '../models/run_result.dart';
 import '../widgets/reward_row.dart';
 
@@ -10,18 +11,13 @@ class ResultsScreen extends ConsumerStatefulWidget {
   final RunResult rawResult;
   final CalculatedRewards finalRewards;
 
-  const ResultsScreen({
-    super.key,
-    required this.rawResult,
-    required this.finalRewards,
-  });
+  const ResultsScreen({super.key, required this.rawResult, required this.finalRewards});
 
   @override
   ConsumerState<ResultsScreen> createState() => _ResultsScreenState();
 }
 
-class _ResultsScreenState extends ConsumerState<ResultsScreen>
-    with SingleTickerProviderStateMixin {
+class _ResultsScreenState extends ConsumerState<ResultsScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
@@ -60,11 +56,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
       appBar: AppBar(
         title: const Text(
           'RUN COMPLETE',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 2),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -86,10 +78,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.amberAccent, width: 2),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.amberAccent.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                      ),
+                      BoxShadow(color: Colors.amberAccent.withValues(alpha: 0.2), blurRadius: 20),
                     ],
                   ),
                   child: Column(
@@ -121,10 +110,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'PERFORMANCE',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -147,10 +133,7 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'REWARDS',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -182,17 +165,17 @@ class _ResultsScreenState extends ConsumerState<ResultsScreen>
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.of(
-                      context,
-                    ).popUntil((route) => route.isFirst),
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const HubScreen()),
+                        (route) => false,
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amber,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 20),
-                      textStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     child: const Text('RETURN TO HUB'),
                   ),

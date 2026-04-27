@@ -16,6 +16,7 @@ class GameplayShellScreen extends ConsumerStatefulWidget {
 class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
   late final EchoMarketGame game;
   bool _isPaused = false;
+  bool _didNavigateToResults = false;
 
   @override
   void initState() {
@@ -25,7 +26,8 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
       bridge: RiverpodGameBridge(
         ref,
         onGameOver: (result, finalRewards) {
-          if (!mounted) return;
+          if (!mounted || _didNavigateToResults) return;
+          _didNavigateToResults = true;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -40,6 +42,12 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
   void _togglePause() {
     setState(() => _isPaused = !_isPaused);
     game.togglePause();
+  }
+
+  @override
+  void dispose() {
+    game.pauseEngine();
+    super.dispose();
   }
 
   @override

@@ -23,7 +23,9 @@ class HubScreen extends ConsumerWidget {
   const HubScreen({super.key});
 
   void _showPlaceholder(BuildContext context, String title) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Navigating to  Module...')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(title)),
+    );
   }
 
   @override

@@ -53,10 +53,7 @@ class _CityRepairScreenState extends ConsumerState<CityRepairScreen> {
     );
   }
 
-  Widget _buildListLayer(
-    List<CityNodeConfig> nodes,
-    CityNotifier cityNotifier,
-  ) {
+  Widget _buildListLayer(List<CityNodeConfig> nodes, CityNotifier cityNotifier) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       itemCount: nodes.length,
@@ -95,13 +92,13 @@ class _CityRepairScreenState extends ConsumerState<CityRepairScreen> {
           children: [
             // Safe Background
             Positioned.fill(
-              child: Opacity(
-                opacity: 0.1,
-                child: Image.network(
-                  'https://picsum.photos/1000/1000?grayscale',
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) =>
-                      const ColoredBox(color: Colors.blueGrey),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xff090c14), Color(0xff101726), Color(0xff090c14)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                 ),
               ),
             ),
@@ -122,13 +119,7 @@ class _CityRepairScreenState extends ConsumerState<CityRepairScreen> {
                 top: y - 24,
                 child: GestureDetector(
                   onTap: () {
-                    _showNodeDetailsDialog(
-                      context,
-                      node,
-                      cityNotifier,
-                      isRepaired,
-                      isLocked,
-                    );
+                    _showNodeDetailsDialog(context, node, cityNotifier, isRepaired, isLocked);
                   },
                   child: Container(
                     width: 48,
@@ -151,9 +142,7 @@ class _CityRepairScreenState extends ConsumerState<CityRepairScreen> {
                       ],
                     ),
                     child: Icon(
-                      isRepaired
-                          ? Icons.check
-                          : (isLocked ? Icons.lock : Icons.build),
+                      isRepaired ? Icons.check : (isLocked ? Icons.lock : Icons.build),
                       color: Colors.black,
                       size: 24,
                     ),

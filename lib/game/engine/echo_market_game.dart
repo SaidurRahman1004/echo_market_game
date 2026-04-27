@@ -11,6 +11,7 @@ import '../components/player/echo_runner.dart';
 import '../managers/combo_manager.dart';
 import '../managers/spawn_manager.dart';
 import '../models/run_session.dart';
+import '../models/run_end_summary.dart';
 import 'game_context_bridge.dart';
 
 class EchoMarketGame extends FlameGame with HasCollisionDetection {
@@ -23,6 +24,7 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
   late TextComponent _comboHud;
 
   double currentSpeed = GameConfig.basePlayerSpeed;
+  double _elapsedSeconds = 0.0;
 
   EchoMarketGame({required this.bridge}) : super() {
     session = RunSession(status: GameStatus.menu);
@@ -71,28 +73,31 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
 
   @override
   void update(double dt) {
-    if (session.status != GameStatus.playing) return;
+    if (session.status == GameStatus.playing) {
+      currentSpeed += GameConfig.speedMultiplier * dt;
+      if (currentSpeed > GameConfig.maxPlayerSpeed) {
+        currentSpeed = GameConfig.maxPlayerSpeed;
+      }
 
-    currentSpeed += GameConfig.speedMultiplier * dt;
-    if (currentSpeed > GameConfig.maxPlayerSpeed) {
-      currentSpeed = GameConfig.maxPlayerSpeed;
+      _elapsedSeconds += dt;
+      session.distance += currentSpeed * dt;
+
+      // Update live HUD
+      _scoreHud.text = 'Dist: ${session.distance.toInt()}m   Shards: ${session.shards}';
+      _comboHud.text = comboManager.currentMultiplier > 1.0
+          ? 'x${comboManager.currentMultiplier.toStringAsFixed(1)}'
+          : '';
     }
-
-    session.distance += currentSpeed * dt;
-
-    // Update live HUD
-    _scoreHud.text = 'Dist: ${session.distance.toInt()}m   Shards: ${session.shards}';
-    _comboHud.text = comboManager.currentMultiplier > 1.0
-        ? 'x${comboManager.currentMultiplier.toStringAsFixed(1)}'
-        : '';
 
     super.update(dt);
   }
 
   void startRun() {
     currentSpeed = GameConfig.basePlayerSpeed;
+    _elapsedSeconds = 0.0;
     session.reset();
     comboManager.reset();
+    _comboHud.text = 'x1.0';
   }
 
   void triggerGameOver() {
@@ -113,15 +118,18 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
         period: 0.5,
         removeOnFinish: true,
         onTick: () {
-          bridge.onRunEnded({
-            'score': session.score,
-            'distance': session.distance,
-            'coins': session.coins,
-            'shards': session.shards,
-            'combo':
-                comboManager.maxCombo /
-                10.0, // Convert combo points to a double multiplier bonus, eg 20 -> 2.0x bonus
-          });
+          bridge.onRunEnded(
+            RunEndSummary(
+              score: session.score,
+              distance: session.distance.toInt(),
+              survivalTimeSeconds: _elapsedSeconds.toInt(),
+              coins: session.coins,
+              shards: session.shards,
+              comboBonus:
+                  comboManager.maxCombo /
+                  10.0, // Convert combo points to a double multiplier bonus, eg 20 -> 2.0x bonus
+            ),
+          );
         },
       ),
     );

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../meta_progression/state/currency_provider.dart';
 import '../../meta_progression/state/profile_provider.dart';
 
@@ -29,61 +30,87 @@ class ResourceHeader extends ConsumerWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Profile & Level
-            Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isCompact = constraints.maxWidth < 360;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blueAccent,
-                  radius: 20,
-                  child: Text(
-                    profile.currentLevel.toString(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                Row(
                   children: [
-                    const Text(
-                      'Runner',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    CircleAvatar(
+                      backgroundColor: Colors.blueAccent,
+                      radius: 20,
+                      child: Text(
+                        profile.currentLevel.toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
                     ),
-                    Text(
-                      'XP: ${profile.currentXp}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Runner',
+                            style: TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                          Text(
+                            'XP: ${profile.currentXp}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                if (isCompact)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: _CurrencyPill(
+                          icon: Icons.monetization_on,
+                          iconColor: Colors.amber,
+                          amount: currency.echoCoins,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _CurrencyPill(
+                          icon: Icons.diamond,
+                          iconColor: Colors.purpleAccent,
+                          amount: currency.timeShards,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _CurrencyPill(
+                        icon: Icons.monetization_on,
+                        iconColor: Colors.amber,
+                        amount: currency.echoCoins,
+                      ),
+                      const SizedBox(width: 12),
+                      _CurrencyPill(
+                        icon: Icons.diamond,
+                        iconColor: Colors.purpleAccent,
+                        amount: currency.timeShards,
+                      ),
+                    ],
+                  ),
               ],
-            ),
-
-            // Currencies
-            Row(
-              children: [
-                _CurrencyPill(
-                  icon: Icons.monetization_on,
-                  iconColor: Colors.amber,
-                  amount: currency.echoCoins,
-                ),
-                const SizedBox(width: 12),
-                _CurrencyPill(
-                  icon: Icons.diamond,
-                  iconColor: Colors.purpleAccent,
-                  amount: currency.timeShards,
-                ),
-              ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -95,11 +122,7 @@ class _CurrencyPill extends StatelessWidget {
   final Color iconColor;
   final int amount;
 
-  const _CurrencyPill({
-    required this.icon,
-    required this.iconColor,
-    required this.amount,
-  });
+  const _CurrencyPill({required this.icon, required this.iconColor, required this.amount});
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +140,7 @@ class _CurrencyPill extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             amount.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
           ),
         ],
       ),

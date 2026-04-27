@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/zone_config.dart';
 
 class ZoneCard extends StatelessWidget {
@@ -44,15 +45,18 @@ class ZoneCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           child: Stack(
             children: [
-              // Background Image
+              // Background treatment
               Positioned.fill(
-                child: Image.network(
-                  config.imageUrl,
-                  fit: BoxFit.cover,
-                  color: isUnlocked ? null : Colors.grey,
-                  colorBlendMode: isUnlocked ? null : BlendMode.saturation,
-                  errorBuilder: (_, _, _) => ColoredBox(
-                    color: config.themeColor.withValues(alpha: 0.2),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        config.themeColor.withValues(alpha: 0.45),
+                        Colors.black.withValues(alpha: 0.5),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
                 ),
               ),
