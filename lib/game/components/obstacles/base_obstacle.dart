@@ -1,8 +1,9 @@
-import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
+
 import '../../../core/configs/game_config.dart';
 import '../../engine/echo_market_game.dart';
-
 import '../../managers/combo_manager.dart';
 
 abstract class BaseObstacle extends PositionComponent
@@ -17,16 +18,25 @@ abstract class BaseObstacle extends PositionComponent
 
   @override
   Future<void> onLoad() async {
+    // Make danger boxes visible
+    final rectVisual = RectangleComponent(size: size, paint: Paint()..color = Colors.redAccent);
+    add(rectVisual);
+
+    // Border
+    add(
+      RectangleComponent(
+        size: size,
+        paint: Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      ),
+    );
+
     // Add a hitbox slightly smaller than visual bounds for fairness
     hitbox = RectangleHitbox(
-      size: Vector2(
-        size.x - GameConfig.hitboxPaddingX * 2,
-        size.y - GameConfig.hitboxPaddingY * 2,
-      ),
-      position: Vector2(
-        GameConfig.hitboxPaddingX,
-        GameConfig.hitboxPaddingY * 2,
-      ),
+      size: Vector2(size.x - GameConfig.hitboxPaddingX * 2, size.y - GameConfig.hitboxPaddingY * 2),
+      position: Vector2(GameConfig.hitboxPaddingX, GameConfig.hitboxPaddingY * 2),
       // Focus bottom, pad top for fair overhead jumping
     );
     add(hitbox);

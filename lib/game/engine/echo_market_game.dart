@@ -1,21 +1,26 @@
-import 'package:flame/game.dart';
-import 'package:flame/effects.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart' hide Image;
+
 import '../../core/configs/game_config.dart';
+import '../components/collectibles/base_collectible.dart';
+import '../components/environment/ground.dart';
+import '../components/obstacles/base_obstacle.dart';
+import '../components/player/echo_runner.dart';
+import '../managers/combo_manager.dart';
+import '../managers/spawn_manager.dart';
 import '../models/run_session.dart';
 import 'game_context_bridge.dart';
-import '../components/player/echo_runner.dart';
-import '../components/environment/ground.dart';
-import '../managers/spawn_manager.dart';
-import '../components/obstacles/base_obstacle.dart';
-import '../components/collectibles/base_collectible.dart';
-import '../managers/combo_manager.dart';
 
 class EchoMarketGame extends FlameGame with HasCollisionDetection {
   final GameContextBridge bridge;
   late final RunSession session;
   late EchoRunner runner; // Removed final so it can reset cleanly on restart
   late ComboManager comboManager;
+
+  late TextComponent _scoreHud;
+  late TextComponent _comboHud;
 
   double currentSpeed = GameConfig.basePlayerSpeed;
 
@@ -32,6 +37,35 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
     add(comboManager);
     add(SpawnManager());
 
+    // In-Game HUD for Live Feed
+    _scoreHud = TextComponent(
+      text: 'Distance: 0m   Shards: 0',
+      position: Vector2(20, 20),
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          shadows: [Shadow(blurRadius: 4, color: Colors.black, offset: Offset(2, 2))],
+        ),
+      ),
+    );
+    _comboHud = TextComponent(
+      text: 'x1.0',
+      position: Vector2(size.x - 20, 20),
+      anchor: Anchor.topRight,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.amberAccent,
+          fontSize: 28,
+          fontWeight: FontWeight.w900,
+          shadows: [Shadow(blurRadius: 6, color: Colors.black, offset: Offset(2, 2))],
+        ),
+      ),
+    );
+    add(_scoreHud);
+    add(_comboHud);
+
     startRun(); // Start cleanly only after resources are fully loaded and components attached
   }
 
@@ -45,6 +79,13 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
     }
 
     session.distance += currentSpeed * dt;
+
+    // Update live HUD
+    _scoreHud.text = 'Dist: ${session.distance.toInt()}m   Shards: ${session.shards}';
+    _comboHud.text = comboManager.currentMultiplier > 1.0
+        ? 'x${comboManager.currentMultiplier.toStringAsFixed(1)}'
+        : '';
+
     super.update(dt);
   }
 
@@ -90,9 +131,7 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
   void onCollectibleGrabbed(int amount) {
     comboManager.triggerAction(ComboAction.pickup);
     session.shards += amount;
-    session.score +=
-        (GameConfig.collectibleBaseValue * comboManager.currentMultiplier)
-            .toInt();
+    session.score += (GameConfig.collectibleBaseValue * comboManager.currentMultiplier).toInt();
     bridge.onCollectiblePickedUp("time_shard", amount);
   }
 
@@ -110,9 +149,7 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
 
   void restartRun() {
     // Reset spawn timers
-    children.whereType<SpawnManager>().forEach(
-      (element) => element.spawnTimer = 0.0,
-    );
+    children.whereType<SpawnManager>().forEach((element) => element.spawnTimer = 0.0);
 
     // Purge old entities
     children.whereType<BaseObstacle>().forEach((e) => e.removeFromParent());
@@ -126,9 +163,7 @@ class EchoMarketGame extends FlameGame with HasCollisionDetection {
     add(runner);
 
     // Reset camera just in case
-    camera.viewfinder.children.whereType<Effect>().forEach(
-      (e) => e.removeFromParent(),
-    );
+    camera.viewfinder.children.whereType<Effect>().forEach((e) => e.removeFromParent());
     camera.viewfinder.position = Vector2.zero();
 
     resumeEngine(); // In case game was restarted from pause/gameover

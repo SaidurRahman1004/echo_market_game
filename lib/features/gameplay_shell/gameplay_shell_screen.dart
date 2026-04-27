@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flame/game.dart';
+
 import '../../game/engine/echo_market_game.dart';
 import '../results/screens/results_screen.dart';
 import 'providers/riverpod_game_bridge.dart';
@@ -9,8 +10,7 @@ class GameplayShellScreen extends ConsumerStatefulWidget {
   const GameplayShellScreen({super.key});
 
   @override
-  ConsumerState<GameplayShellScreen> createState() =>
-      _GameplayShellScreenState();
+  ConsumerState<GameplayShellScreen> createState() => _GameplayShellScreenState();
 }
 
 class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
@@ -29,8 +29,7 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (_) =>
-                  ResultsScreen(rawResult: result, finalRewards: finalRewards),
+              builder: (_) => ResultsScreen(rawResult: result, finalRewards: finalRewards),
             ),
           );
         },
@@ -60,12 +59,10 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
               },
               onVerticalDragEnd: (details) {
                 if (!game.isLoaded || !game.runner.isLoaded) return;
-                if (details.primaryVelocity != null &&
-                    details.primaryVelocity! > 0) {
+                if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
                   // Downward swipe -> Slide
                   game.runner.slide();
-                } else if (details.primaryVelocity != null &&
-                    details.primaryVelocity! < 0) {
+                } else if (details.primaryVelocity != null && details.primaryVelocity! < 0) {
                   // Upward swipe -> Jump overlap
                   game.runner.jump();
                 }
@@ -79,9 +76,9 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
             left: 20,
             child: IconButton(
               icon: Icon(
-                 _isPaused ? Icons.play_arrow : Icons.pause, 
-                 color: Colors.white,
-                 size: 32,
+                _isPaused ? Icons.play_arrow : Icons.pause,
+                color: Colors.white70,
+                size: 32,
               ),
               onPressed: _togglePause,
             ),
@@ -114,10 +111,7 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
                             backgroundColor: Colors.cyanAccent,
                             foregroundColor: Colors.black,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            textStyle: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           ),
                           child: const Text('RESUME'),
                         ),
@@ -134,10 +128,7 @@ class _GameplayShellScreenState extends ConsumerState<GameplayShellScreen> {
                             foregroundColor: Colors.redAccent,
                             side: const BorderSide(color: Colors.redAccent),
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           child: const Text('ABORT RUN'),
                         ),

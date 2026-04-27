@@ -1,12 +1,13 @@
-import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flutter/material.dart';
+
 import '../../../core/configs/game_config.dart';
 import '../../engine/echo_market_game.dart';
-import '../obstacles/base_obstacle.dart';
-import '../collectibles/base_collectible.dart';
-
 import '../../managers/combo_manager.dart';
+import '../collectibles/base_collectible.dart';
+import '../obstacles/base_obstacle.dart';
 
 class EchoRunner extends PositionComponent
     with HasGameReference<EchoMarketGame>, CollisionCallbacks {
@@ -14,6 +15,7 @@ class EchoRunner extends PositionComponent
   bool isSliding = false;
   bool isInvulnerable = false; // Post-hit or dash invulnerability
   late RectangleHitbox hitbox;
+  late RectangleComponent _visuals;
 
   double velocityY = 0.0;
   double _jumpBufferTimer = 0.0;
@@ -23,8 +25,7 @@ class EchoRunner extends PositionComponent
   double get gravity => GameConfig.playerGravity;
   double get jumpForce => GameConfig.playerJumpForce;
 
-  EchoRunner()
-    : super(size: Vector2(GameConfig.playerWidth, GameConfig.playerHeight)) {
+  EchoRunner() : super(size: Vector2(GameConfig.playerWidth, GameConfig.playerHeight)) {
     anchor = Anchor.bottomCenter;
   }
 
@@ -38,6 +39,9 @@ class EchoRunner extends PositionComponent
       size: Vector2(size.x - 20, size.y - 15),
     );
     add(hitbox);
+
+    _visuals = RectangleComponent(size: size, paint: Paint()..color = Colors.cyanAccent);
+    add(_visuals);
   }
 
   @override
@@ -73,7 +77,7 @@ class EchoRunner extends PositionComponent
         isGrounded = true;
         _isFastFalling = false;
         velocityY = 0.0;
-        
+
         // Auto-consume jump buffer if we pressed jump right before landing
         if (_jumpBufferTimer > 0) {
           _jumpBufferTimer = 0;
@@ -122,7 +126,7 @@ class EchoRunner extends PositionComponent
 
   void slide() {
     if (!game.session.isPlaying) return;
-    
+
     if (!isGrounded) {
       // Fast fall maneuver if already in the air!
       _isFastFalling = true;
@@ -150,6 +154,7 @@ class EchoRunner extends PositionComponent
 
   void _adjustHitboxForRun() {
     hitbox.size = Vector2(size.x - 20, size.y - 15);
+    _visuals.paint.color = Colors.cyanAccent;
   }
 
   void _adjustHitboxForSlide() {
@@ -157,13 +162,11 @@ class EchoRunner extends PositionComponent
     position.y = GameConfig.groundLevel;
     velocityY = 0.0;
     isGrounded = true;
+    _visuals.paint.color = Colors.deepOrangeAccent; // Visual difference while sliding
   }
 
   @override
-  void onCollisionStart(
-    Set<Vector2> intersectionPoints,
-    PositionComponent other,
-  ) {
+  void onCollisionStart(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
 
     if (other is BaseObstacle && !isInvulnerable) {

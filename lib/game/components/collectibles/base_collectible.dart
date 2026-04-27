@@ -1,7 +1,8 @@
-import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flutter/animation.dart';
+import 'package:flutter/material.dart' hide Image;
+
 import '../../../core/configs/game_config.dart';
 import '../../engine/echo_market_game.dart';
 import '../../models/run_session.dart';
@@ -17,13 +18,32 @@ abstract class BaseCollectible extends PositionComponent
 
   @override
   Future<void> onLoad() async {
-    // Hitbox slightly larger than sprite for generous pickups
+    // Add visual representation (Amber Diamond)
+    final visual = RectangleComponent(
+      size: size,
+      anchor: Anchor.center,
+      position: Vector2(size.x / 2, size.y / 2),
+      paint: Paint()..color = Colors.amber,
+      angle: 0.785398, // 45 degrees in radians
+    );
+    add(visual);
+
+    // Outline for punchiness
     add(
-      RectangleHitbox(
-        size: Vector2(size.x + 10, size.y + 10),
-        position: Vector2(-5, -5),
+      RectangleComponent(
+        size: size,
+        anchor: Anchor.center,
+        position: Vector2(size.x / 2, size.y / 2),
+        angle: 0.785398,
+        paint: Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
       ),
     );
+
+    // Hitbox slightly larger than sprite for generous pickups
+    add(RectangleHitbox(size: Vector2(size.x + 10, size.y + 10), position: Vector2(-5, -5)));
   }
 
   @override
@@ -44,12 +64,7 @@ abstract class BaseCollectible extends PositionComponent
 
     // Visual feedback: rapid scale up, pop up slightly, and fade before removal
     add(ScaleEffect.to(Vector2.all(1.5), EffectController(duration: 0.15)));
-    add(
-      MoveEffect.by(
-        Vector2(0, -30),
-        EffectController(duration: 0.2, curve: Curves.easeOut),
-      ),
-    );
+    add(MoveEffect.by(Vector2(0, -30), EffectController(duration: 0.2, curve: Curves.easeOut)));
     add(RemoveEffect(delay: 0.2));
 
     game.onCollectibleGrabbed(1);
